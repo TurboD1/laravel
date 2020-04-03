@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -39,7 +39,105 @@ class RouteServiceProvider extends ServiceProvider
 
         $this->mapWebRoutes();
 
+        $this->mapAccountRoutes();
+
+        $this->mapDispatcherRoutes();
+
+        $this->mapProviderRoutes();
+
+        $this->mapAdminRoutes();
+
+        $this->mapProviderApiRoutes();
+
+        $this->mapCommonRoutes();
+
         //
+    }
+
+    protected function mapCommonRoutes()
+    {
+        Route::group([
+            'middleware' => ['api'],
+            'namespace' => $this->namespace,
+        ], function ($router) {
+            require base_path('routes/common.php');
+        });
+    }
+
+    /**
+     * Define the "admin" routes for the application.
+     *
+     * These routes all receive session state, CSRF protection, etc.
+     *
+     * @return void
+     */
+    protected function mapAdminRoutes()
+    {
+        Route::group([
+            'middleware' => ['web', 'admin', 'auth:admin','admin.language'],
+            'prefix' => 'admin',
+            'as' => 'admin.',
+            'namespace' => $this->namespace,
+        ], function ($router) {
+            require base_path('routes/admin.php');
+        });
+    }
+
+    /**
+     * Define the "provider" routes for the application.
+     *
+     * These routes all receive session state, CSRF protection, etc.
+     *
+     * @return void
+     */
+    protected function mapProviderRoutes()
+    {
+        Route::group([
+            'middleware' => ['web', 'provider', 'auth:provider','provider.language'],
+            'prefix' => 'provider',
+            'as' => 'provider.',
+            'namespace' => $this->namespace,
+        ], function ($router) {
+            require base_path('routes/provider.php');
+        });
+    }
+
+    /**
+     * Define the "dispatcher" routes for the application.
+     *
+     * These routes all receive session state, CSRF protection, etc.
+     *
+     * @return void
+     */
+    protected function mapDispatcherRoutes()
+    {
+        Route::group([
+            'middleware' => ['web', 'dispatcher', 'auth:dispatcher','dispatcher.language'],
+            'prefix' => 'dispatcher',
+            'as' => 'dispatcher.',
+            'namespace' => $this->namespace,
+        ], function ($router) {
+            require base_path('routes/dispatcher.php');
+        });
+    }
+
+    /**
+     * Define the "account" routes for the application.
+     *
+     * These routes all receive session state, CSRF protection, etc.
+     *
+     * @return void
+     */
+    protected function mapAccountRoutes()
+    {
+        Route::group([
+            'middleware' => ['web', 'account', 'auth:account','account.language'],
+            'prefix' => 'account',
+            'as' => 'account.',
+            'namespace' => $this->namespace,
+        ], function ($router) {
+            require base_path('routes/account.php');
+        });
     }
 
     /**
@@ -51,9 +149,12 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapWebRoutes()
     {
-        Route::middleware('web')
-             ->namespace($this->namespace)
-             ->group(base_path('routes/web.php'));
+        Route::group([
+            'middleware' => ['web', 'language'],
+            'namespace' => $this->namespace,
+        ], function ($router) {
+            require base_path('routes/web.php');
+        });
     }
 
     /**
@@ -65,9 +166,31 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapApiRoutes()
     {
-        Route::prefix('api')
-             ->middleware('api')
-             ->namespace($this->namespace)
-             ->group(base_path('routes/api.php'));
+        Route::group([
+            'middleware' => ['api', 'language'],
+            'namespace' => $this->namespace,
+            'prefix' => 'api/user',
+        ], function ($router) {
+            require base_path('routes/api.php');
+        });
+    }
+
+
+    /**
+     * Define the "api" routes for the application.
+     *
+     * These routes are typically stateless.
+     *
+     * @return void
+     */
+    protected function mapProviderApiRoutes()
+    {
+        Route::group([
+            'middleware' => ['provider.language'],
+            'namespace' => $this->namespace,
+            'prefix' => 'api/provider',
+        ], function ($router) {
+            require base_path('routes/providerapi.php');
+        });
     }
 }
