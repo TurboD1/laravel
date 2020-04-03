@@ -81,7 +81,7 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    Laravel demo
+                    zenetare
                 </div>
 
                 <div class="links">
